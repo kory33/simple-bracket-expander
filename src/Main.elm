@@ -1,11 +1,11 @@
 module Main exposing (Model, Msg(..), init, main, update, view)
 
 import Browser
-import Time exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
 import Task
+import Process
 
 
 
@@ -15,13 +15,13 @@ import Task
 type alias Model =
     { input : String
     , output : String
-    , lastInputTime : Maybe Posix
+    , pendingUpdateCount : Int
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { input = "", output = "", lastInputTime = Nothing }, Cmd.none )
+    ( { input = "", output = "", pendingUpdateCount = 0 }, Cmd.none )
 
 
 
@@ -30,11 +30,20 @@ init _ =
 
 type Msg
     = InputChange String
-    | UpdateWithTime Posix
+    | DelayedUpdate Int
 
 
 computeOutput : String -> String
 computeOutput input = input
+
+
+-- delay the message invocation by specified miliseconds
+delay : Msg -> Float -> Cmd Msg
+delay msg miliseconds = Process.sleep miliseconds |> (Task.perform <| \_ -> msg)
+
+
+updateDelay : Float
+updateDelay = 150
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -42,28 +51,16 @@ update msg model =
     case msg of
         InputChange inputString ->
             let
-                updateTimeCmd = Task.perform UpdateWithTime Time.now
+                inputUpdatedModel = { model | input = inputString }
+                newUpdateCount = model.pendingUpdateCount + 1
+                countUpdatedModel = { inputUpdatedModel | pendingUpdateCount = newUpdateCount }
             in
-                ( { model | input = inputString }, updateTimeCmd )
-        UpdateWithTime posix ->
-            let
-                shouldRecomputeOutput =
-                    case model.lastInputTime of
-                        Just oldTime ->
-                            let
-                                oldTimePosix = posixToMillis oldTime
-                                newTimePosix = posixToMillis posix
-                            in
-                                (newTimePosix - oldTimePosix) > 1000
-                        _ -> True
-                updatedModel =
-                    if shouldRecomputeOutput
-                        then
-                            { model | output = computeOutput model.input }
-                        else model
-            in
-                ( { updatedModel | lastInputTime = Just posix }, Cmd.none )
-
+                ( countUpdatedModel, delay (DelayedUpdate newUpdateCount) updateDelay )
+        DelayedUpdate oldPendingUpdateCount ->
+            if model.pendingUpdateCount == oldPendingUpdateCount then
+                ( { model | output = computeOutput model.input, pendingUpdateCount = 0 }, Cmd.none )
+            else
+                ( model, Cmd.none )
 
 
 ---- VIEW ----
