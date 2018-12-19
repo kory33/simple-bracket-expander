@@ -15,15 +15,15 @@ module.exports = {
                 loader: ['style-loader', 'css-loader', 'sass-loader'],
             },
             {
+                test: /\.svg$/,
+                loader: 'url-loader'
+            },
+            {
                 test:    /\.elm$/,
                 loader: 'elm-webpack-loader',
                 options: {
                     debug: true
                 }
-            },
-            {
-                test: /\.svg$/,
-                loader: 'url-loader'
             }
         ],
     },
@@ -41,4 +41,4 @@ module.exports = {
         watchContentBase: true,
         open: 'Google Chrome',
     }
-};
+}
