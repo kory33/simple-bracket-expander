@@ -4,24 +4,24 @@
 ## Install
 
 ```shell
-$ npm i
+$ yarn
 ```
 
 ## Launch develop server
 
 ```shell
-$ npm start
+$ yarn start
 ```
 
 ## Test
 
 ```shell
-$ npm test
+$ yarn test
 ```
 
 ## Build
 
 ```shell
-$ npm run build
+$ yarn build
 $ open dist/index.html
 ```
