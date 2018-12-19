@@ -67,7 +67,8 @@ jobs:
       - run: |
           git config user.email $(git --no-pager show -s --format='%ae')
           git config user.name CircleCI
-          git checkout --orphan gh-pages || git checkout gh-pages
+          git fetch
+          git checkout -b gh-pages origin/gh-pages || git checkout --orphan gh-pages
           find . -maxdepth 1 -not -name '.git' | xargs rm -rf || true
       - attach_workspace:
           at: '/workspace'
@@ -81,7 +82,11 @@ workflows:
   version: 2
   test_and_build:
     jobs:
-      - install
+      - install:
+          filters:
+            branches:
+              only:
+                - master
       - test:
           requires:
             - install
