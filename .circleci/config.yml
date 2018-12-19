@@ -5,7 +5,7 @@ anchors:
   docker:
     node_docker: &node_docker
       docker:
-        - image: node:8.6.0
+        - image: node:8.14.0
   cache:
     - yarn_cache_key: &yarn_cache_key yarn-packages-{{ checksum "yarn.lock" }}
     - restore_yarn_cache: &restore_yarn_cache
