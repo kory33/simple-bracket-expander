@@ -17,13 +17,6 @@ module.exports = {
             {
                 test: /\.svg$/,
                 loader: 'url-loader'
-            },
-            {
-                test:    /\.elm$/,
-                loader: 'elm-webpack-loader',
-                options: {
-                    debug: true
-                }
             }
         ],
     },

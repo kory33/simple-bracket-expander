@@ -7,6 +7,10 @@ module.exports = merge(commonConfig, {
             {
                 test:    /\.elm$/,
                 loader: 'elm-webpack-loader',
+                options: {
+                    debug: false,
+                    optimize: true
+                }
             },
         ],
     },
