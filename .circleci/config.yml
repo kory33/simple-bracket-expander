@@ -76,7 +76,7 @@ jobs:
           cp -r /workspace/* .
           git add .
           git diff --cached --exit-code --quiet || git commit -am "artifact from commit '$CIRCLE_SHA1' on '$CIRCLE_BRANCH'"
-          git push https://${GITHUB_PERSONAL_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git gh-pages
+      - run: git push https://${GITHUB_PERSONAL_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git gh-pages
 
 workflows:
   version: 2
