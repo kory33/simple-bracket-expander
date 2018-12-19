@@ -1,5 +1,12 @@
+@charset "utf-8";
+@import "~bulma/bulma";
+
 $main-padding: 20px;
 
 #main {
     padding: $main-padding;
+}
+
+.main-container {
+    padding: 30px 10px;
 }

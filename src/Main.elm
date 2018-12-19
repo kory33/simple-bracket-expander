@@ -1,8 +1,11 @@
 module Main exposing (Model, Msg(..), init, main, update, view)
 
 import Browser
-import Html exposing (Html, div, h1, img, text)
-import Html.Attributes exposing (src)
+import Time exposing (..)
+import Html exposing (..)
+import Html.Attributes exposing (..)
+import Html.Events exposing (onInput)
+import Task
 
 
 
@@ -10,12 +13,15 @@ import Html.Attributes exposing (src)
 
 
 type alias Model =
-    {}
+    { input : String
+    , output : String
+    , lastInputTime : Maybe Posix
+    }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( {}, Cmd.none )
+    ( { input = "", output = "", lastInputTime = Nothing }, Cmd.none )
 
 
 
@@ -23,12 +29,40 @@ init _ =
 
 
 type Msg
-    = NoOp
+    = InputChange String
+    | UpdateWithTime Posix
+
+
+computeOutput : String -> String
+computeOutput input = input
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( model, Cmd.none )
+    case msg of
+        InputChange inputString ->
+            let
+                updateTimeCmd = Task.perform UpdateWithTime Time.now
+            in
+                ( { model | input = inputString }, updateTimeCmd )
+        UpdateWithTime posix ->
+            let
+                shouldRecomputeOutput =
+                    case model.lastInputTime of
+                        Just oldTime ->
+                            let
+                                oldTimePosix = posixToMillis oldTime
+                                newTimePosix = posixToMillis posix
+                            in
+                                (newTimePosix - oldTimePosix) > 1000
+                        _ -> True
+                updatedModel =
+                    if shouldRecomputeOutput
+                        then
+                            { model | output = computeOutput model.input }
+                        else model
+            in
+                ( { updatedModel | lastInputTime = Just posix }, Cmd.none )
 
 
 
@@ -38,8 +72,18 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ img [ src "assets/logo.svg" ] []
-        , h1 [] [ text "Your Elm App is working!" ]
+        [ nav [ class "navbar is-light" ]
+            [ div [ class "navbar-brand" ]
+                [ div [ class "navbar-item container is-fluid" ]
+                    [ h1 [ class "title" ] [ text "Simple bracket expander" ] ]
+                ]
+            ]
+        , div [ class "columns main-container" ]
+            [ div [ class "column "]
+                [ textarea [ class "textarea", placeholder "Input text", rows 14, onInput InputChange ] [] ]
+            , div [ class "column" ]
+                [ textarea [ class "textarea", placeholder "Output shown here", readonly True, value model.output ] [] ]
+            ]
         ]
 
 
