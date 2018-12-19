@@ -1,4 +1,5 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 module.exports = {
     entry: `${__dirname}/src/index.js`,
@@ -30,7 +31,8 @@ module.exports = {
         new HtmlWebpackPlugin({
             title: 'Elm app',
             template: `${__dirname}/src/index.html`,
-        })
+        }),
+        new CopyWebpackPlugin([{ from: 'src/assets', to: 'assets' }])
     ],
     mode: process.env.WEBPACK_SERVE ? 'development' : 'production',
     devServer: {
