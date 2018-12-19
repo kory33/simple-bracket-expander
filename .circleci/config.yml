@@ -62,6 +62,13 @@ workflows:
   test_and_build:
     jobs:
       - install
-      - test
-      - build
-      - deploy
+      - test:
+          requires:
+            - install
+      - build:
+          requires:
+            - install
+      - deploy:
+          requires:
+            - build
+            - test
