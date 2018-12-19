@@ -34,9 +34,9 @@ module.exports = {
     ],
     mode: process.env.WEBPACK_SERVE ? 'development' : 'production',
     devServer: {
-      port: '8080',
-      compress: true,
-      watchContentBase: true,
-      open: 'Google Chrome',
+        port: '8080',
+        compress: true,
+        watchContentBase: true,
+        open: 'Google Chrome',
     }
 };
