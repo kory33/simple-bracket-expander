@@ -24,10 +24,7 @@ module.exports = {
         ],
     },
     plugins: [
-        new HtmlWebpackPlugin({
-            title: 'Elm app',
-            template: `${__dirname}/src/index.html`,
-        }),
+        new HtmlWebpackPlugin({ template: `${__dirname}/src/index.html` }),
         new CopyWebpackPlugin([{ from: 'src/assets', to: 'assets' }])
     ],
     mode: process.env.WEBPACK_SERVE ? 'development' : 'production',
