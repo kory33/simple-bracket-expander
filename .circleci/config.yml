@@ -33,6 +33,7 @@ jobs:
   install:
     <<: *node_docker
     steps:
+      - checkout
       - *restore_yarn_cache
       - *restore_elm_cache
       - run: yarn install --frozen-lockfile
@@ -64,14 +65,17 @@ jobs:
     steps:
       - checkout
       - run: |
+          git config user.email $(git --no-pager show -s --format='%ae')
+          git config user.name CircleCI
           git checkout --orphan gh-pages || git checkout gh-pages
-          find ./ -not -name '.git' -delete
+          find . -maxdepth 1 -not -name '.git' | xargs rm -rf || true
       - attach_workspace:
-          at: '~/repo'
+          at: '/workspace'
       - run: |
+          cp -r /workspace/* .
           git add .
           git commit -am "artifact from commit '$CIRCLE_SHA1' on '$CIRCLE_BRANCH'"
-          git push gh-pages
+          git push https://${GITHUB_PERSONAL_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git gh-pages
 
 workflows:
   version: 2
