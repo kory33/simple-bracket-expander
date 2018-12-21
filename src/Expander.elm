@@ -48,20 +48,28 @@ symbolParser =
 
 expressionParser : Parser Expression
 expressionParser =
-    oneOf
-        [ succeed Application
-            |= backtrackable symbolParser
-            |= sequence
-                { start = "("
-                , separator = ","
-                , end = ")"
-                , spaces = spaces
-                , item = lazy (\_ -> expressionParser)
-                , trailing = Forbidden
-                }
-            |. spaces
-        , succeed Value |= symbolParser
-        ]
+    let
+        receiver : Symbol -> Maybe (List Expression) -> Expression
+        receiver symbol maybeArgs =
+            case maybeArgs of
+                Just args -> Application symbol args
+                Nothing -> Value symbol
+    in
+        succeed receiver
+            |= symbolParser
+            |= oneOf
+                [ succeed Just
+                    |= sequence
+                        { start = "("
+                        , separator = ","
+                        , end = ")"
+                        , spaces = spaces
+                        , item = lazy (\_ -> expressionParser)
+                        , trailing = Forbidden
+                        }
+                    |. spaces
+                , succeed Nothing
+                ]
 
 
 parseInput : String -> Result String Expression
