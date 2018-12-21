@@ -14,14 +14,14 @@ import Expander exposing (computeOutput)
 
 type alias Model =
     { input : String
-    , output : Maybe String
+    , output : Result String String
     , pendingUpdateCount : Int
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { input = "", output = Nothing, pendingUpdateCount = 0 }, Cmd.none )
+    ( { input = "", output = Ok "", pendingUpdateCount = 0 }, Cmd.none )
 
 
 
@@ -62,11 +62,11 @@ update msg model =
 ---- VIEW ----
 
 
-outputToString : Maybe String -> String
+outputToString : Result String String -> String
 outputToString output =
     case output of
-        Just s -> s
-        _ -> ""
+        Ok s -> s
+        Err s -> s
 
 
 view : Model -> Html Msg
