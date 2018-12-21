@@ -6,7 +6,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
 import Task
 import Process
-
+import Expander exposing (computeOutput)
 
 
 ---- MODEL ----
@@ -14,14 +14,14 @@ import Process
 
 type alias Model =
     { input : String
-    , output : String
+    , output : Maybe String
     , pendingUpdateCount : Int
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { input = "", output = "", pendingUpdateCount = 0 }, Cmd.none )
+    ( { input = "", output = Nothing, pendingUpdateCount = 0 }, Cmd.none )
 
 
 
@@ -31,10 +31,6 @@ init _ =
 type Msg
     = InputChange String
     | DelayedUpdate Int
-
-
-computeOutput : String -> String
-computeOutput input = input
 
 
 -- delay the message invocation by specified miliseconds
@@ -66,6 +62,13 @@ update msg model =
 ---- VIEW ----
 
 
+outputToString : Maybe String -> String
+outputToString output =
+    case output of
+        Just s -> s
+        _ -> ""
+
+
 view : Model -> Html Msg
 view model =
     div []
@@ -79,7 +82,7 @@ view model =
             [ div [ class "column "]
                 [ textarea [ class "textarea", placeholder "Input text", rows 14, onInput InputChange ] [] ]
             , div [ class "column" ]
-                [ textarea [ class "textarea", placeholder "Output shown here", readonly True, value model.output ] [] ]
+                [ textarea [ class "textarea", placeholder "Output shown here", readonly True, value <| outputToString model.output ] [] ]
             ]
         ]
 
