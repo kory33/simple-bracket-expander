@@ -20,7 +20,7 @@ isWhiteSpace c = List.member c <| String.toList " \t\r\n"
 
 
 isSymbolChar : Char -> Bool
-isSymbolChar c = (not <| isWhiteSpace c) && not (List.member c <| String.toList "(,)")
+isSymbolChar c = not (List.member c <| String.toList "(,)")
 
 
 spaces : Parser ()
