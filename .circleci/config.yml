@@ -65,6 +65,9 @@ jobs:
     steps:
       - checkout
       - run: |
+          mkdir -p /tmp
+          cp ./.circleci/empty.yml /tmp
+      - run: |
           git config user.email $(git --no-pager show -s --format='%ae')
           git config user.name CircleCI
           git fetch
@@ -74,6 +77,8 @@ jobs:
           at: '/workspace'
       - run: |
           cp -r /workspace/* .
+          mkdir ./.circleci
+          mv /tmp/empty.yml ./.circleci/config.yml
           ls -al
           git add .
           git diff --cached --exit-code --quiet || git commit -am "artifact from commit '$CIRCLE_SHA1' on '$CIRCLE_BRANCH'"
