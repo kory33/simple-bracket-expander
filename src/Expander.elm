@@ -51,7 +51,6 @@ expressionParser =
     oneOf
         [ succeed Application
             |= backtrackable symbolParser
-            |. spaces
             |= sequence
                 { start = "("
                 , separator = ","
@@ -61,13 +60,14 @@ expressionParser =
                 , trailing = Forbidden
                 }
             |. spaces
-            |. end
         , succeed Value |= symbolParser
         ]
 
 
 parseInput : String -> Result String Expression
-parseInput input = run expressionParser input |> Result.mapError Parser.deadEndsToString
+parseInput input =
+    run (expressionParser |. end) input
+        |> Result.mapError Parser.deadEndsToString
 
 
 expandExpression : Expression -> String
