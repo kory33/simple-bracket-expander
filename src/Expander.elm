@@ -19,10 +19,6 @@ isWhiteSpace : Char -> Bool
 isWhiteSpace c = List.member c <| String.toList " \t\r\n"
 
 
-isSymbolChar : Char -> Bool
-isSymbolChar c = not (List.member c <| String.toList "(,)")
-
-
 spaces : Parser ()
 spaces = chompWhile isWhiteSpace
 
@@ -30,19 +26,22 @@ spaces = chompWhile isWhiteSpace
 symbolParser : Parser Symbol
 symbolParser =
     let
-        chompWhileSymbolChar = 
-            getChompedString <|
-                succeed ()
-                    |. chompWhile isSymbolChar
+        isSymbolChar : Char -> Bool
+        isSymbolChar c = not (List.member c <| String.toList "(,)")
+
+        matchNonempty : String -> Parser String
         matchNonempty match =
             if match /= "" then
                 succeed match
             else
                 problem "matched on an empty symbol"
+
+        keepWhile : (Char -> Bool) -> Parser String
+        keepWhile f = getChompedString <| chompWhile f
     in
         succeed identity
             |. spaces
-            |= (chompWhileSymbolChar |> (Parser.andThen matchNonempty))
+            |= ((keepWhile isSymbolChar) |> Parser.andThen matchNonempty)
             |. spaces
 
 
