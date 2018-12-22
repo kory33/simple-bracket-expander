@@ -84,7 +84,11 @@ view model =
             [ div [ class "column "]
                 [ textarea [ class "textarea", placeholder "Input text", rows 14, onInput InputChange ] [] ]
             , div [ class "column" ]
-                [ textarea [ class "textarea", placeholder "Output shown here", readonly True, value <| outputToString model.output ] [] ]
+                [ pre []
+                    [ code []
+                        [ text <| outputToString model.output ]
+                    ]
+                ]
             ]
         ]
 
