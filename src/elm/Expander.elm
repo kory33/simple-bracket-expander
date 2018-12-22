@@ -5,6 +5,7 @@ import Parser exposing
     , symbol, oneOf, end, sequence, backtrackable
     , chompWhile, getChompedString, lazy
     )
+import CommonModel exposing (..)
 
 
 type alias Symbol = String
@@ -85,29 +86,21 @@ flattenExpression expr =
         Value symbol -> symbol
 
 
-maxFlatExpressionLength : Int
-maxFlatExpressionLength = 120
-
-
-indentation : String
-indentation = "  "
-
-
 indentMultiline : String -> String -> String
 indentMultiline indent string =
     indent ++ (String.replace "\n" ("\n" ++ indent) string)
 
 
-expandExpression : Expression -> String
-expandExpression expr =
+expandExpression : ExpanderConfig -> Expression -> String
+expandExpression config expr =
     case expr of
         Application identifier args ->
             let
                 flatExpr = flattenExpression expr
             in
-                if String.length flatExpr > maxFlatExpressionLength then
+                if String.length flatExpr > config.maxFlatExpressionLength then
                     let
-                        expandArg = (indentMultiline indentation) << expandExpression
+                        expandArg = (indentMultiline config.indentation) << (expandExpression config)
                     in
                         identifier
                             ++ "(\n"
@@ -118,5 +111,5 @@ expandExpression expr =
         Value symbol -> symbol
 
 
-computeOutput : String -> Result String String
-computeOutput input = parseInput input |> Result.map expandExpression
+computeOutput : ExpanderConfig -> String -> Result String String
+computeOutput config input = parseInput input |> Result.map (expandExpression config)

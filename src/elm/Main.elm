@@ -7,6 +7,7 @@ import Html.Events exposing (onInput)
 import Task
 import Process
 import Expander exposing (computeOutput)
+import CommonModel exposing (..)
 
 
 ---- MODEL ----
@@ -16,12 +17,13 @@ type alias Model =
     { input : String
     , output : Result String String
     , pendingUpdateCount : Int
+    , config : ExpanderConfig
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { input = "", output = Ok "", pendingUpdateCount = 0 }, Cmd.none )
+    ( { input = "", output = Ok "", pendingUpdateCount = 0, config = ExpanderConfig "  " 20 }, Cmd.none )
 
 
 
@@ -54,7 +56,7 @@ update msg model =
                 ( countUpdatedModel, delay (DelayedUpdate newUpdateCount) updateDelay )
         DelayedUpdate oldPendingUpdateCount ->
             if model.pendingUpdateCount == oldPendingUpdateCount then
-                ( { model | output = computeOutput model.input, pendingUpdateCount = 0 }, Cmd.none )
+                ( { model | output = computeOutput model.config model.input, pendingUpdateCount = 0 }, Cmd.none )
             else
                 ( model, Cmd.none )
 
