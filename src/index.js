@@ -1,6 +1,6 @@
 require('./main.scss');
 
-const { Elm } = require('./Main.elm');
+const { Elm } = require('./elm/Main.elm');
 const mountNode = document.getElementById('main');
 
 Elm.Main.init({
