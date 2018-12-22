@@ -55,7 +55,7 @@ expressionParser =
                 Nothing -> Value symbol
     in
         succeed receiver
-            |= symbolParser
+            |= (symbolParser |> Parser.map String.trim)
             |= oneOf
                 [ succeed Just
                     |= sequence
@@ -77,15 +77,45 @@ parseInput input =
         |> Result.mapError Parser.deadEndsToString
 
 
+flattenExpression : Expression -> String
+flattenExpression expr =
+    case expr of
+        Application identifier args ->
+            identifier ++ "(" ++ (String.join ", " <| List.map flattenExpression args) ++ ")"
+        Value symbol -> symbol
+
+
+maxFlatExpressionLength : Int
+maxFlatExpressionLength = 120
+
+
+indentation : String
+indentation = "  "
+
+
+indentMultiline : String -> String -> String
+indentMultiline indent string =
+    indent ++ (String.replace "\n" ("\n" ++ indent) string)
+
+
 expandExpression : Expression -> String
 expandExpression expr =
     case expr of
         Application identifier args ->
             let
-                argsExpansion = String.join ", " <| List.map expandExpression args
+                flatExpr = flattenExpression expr
             in
-                "Application \"" ++ identifier ++ "\" [ " ++ argsExpansion ++ " ]"
-        Value symbol -> "Symbol \"" ++ symbol ++ "\""
+                if String.length flatExpr > maxFlatExpressionLength then
+                    let
+                        expandArg = (indentMultiline indentation) << expandExpression
+                    in
+                        identifier
+                            ++ "(\n"
+                            ++ String.join ",\n" (List.map expandArg args)
+                            ++ "\n)"
+                else
+                    flatExpr
+        Value symbol -> symbol
 
 
 computeOutput : String -> Result String String
