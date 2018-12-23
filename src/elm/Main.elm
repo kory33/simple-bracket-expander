@@ -66,9 +66,12 @@ update msg model =
 
 outputToString : Result String String -> String
 outputToString output =
-    case output of
-        Ok s -> s
-        Err s -> s
+    let
+        flattenedOutput = Result.andThen (\string -> if string == "" then Err "" else Ok string) output
+    in
+        case flattenedOutput of
+            Ok s -> s
+            Err _ -> "No output available."
 
 
 view : Model -> Html Msg
