@@ -26,16 +26,22 @@ type alias Model =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { input = "", output = Ok "", pendingUpdateCount = 0, config = ExpanderConfig "  " 20 }, Cmd.none )
+    ( { input = "", output = Ok "", pendingUpdateCount = 0, config = ExpanderConfig "  " 140 }, Cmd.none )
 
 
 
 ---- UPDATE ----
 
 
+type ConfigUpdateParam
+    = IndentString String
+    | MaxRowLength String
+
+
 type Msg
     = InputChange String
     | DelayedUpdate Int
+    | ConfigUpdate ConfigUpdateParam
 
 
 -- delay the message invocation by specified miliseconds
@@ -62,6 +68,21 @@ update msg model =
                 ( { model | output = computeOutput model.config model.input, pendingUpdateCount = 0 }, Cmd.none )
             else
                 ( model, Cmd.none )
+        ConfigUpdate updateParam ->
+            let
+                config = model.config
+                newConfig =
+                    case updateParam of
+                        IndentString string -> { config | indentation = string }
+                        MaxRowLength string ->
+                            let
+                                convertedInt = String.toInt string
+                            in
+                                case convertedInt of
+                                    Just integer -> { config | maxFlatExpressionLength = integer }
+                                    _ -> config
+            in
+                update (InputChange model.input) { model | config = newConfig }
 
 
 ---- VIEW ----
@@ -81,6 +102,7 @@ outputToString output =
 view : Model -> Html Msg
 view model =
     let
+        outputBlock : Html msg
         outputBlock = pre [] [ code [] [ text <| outputToString model.output ] ]
 
         parseStatusHtml : Html msg
@@ -112,6 +134,43 @@ view model =
                 div [ class <| "box output-status-box" ++ boxColorClass]
                     [ div [ class "level" ] [ pre [] [ code [] [ text informationText ] ] ]
                     ]
+        
+        parameterForm : Html Msg
+        parameterForm =
+            div [ class "box" ]
+                [ div [ class "field is-horizontal" ]
+                    [ div [ class "field-label is-normal" ]
+                        [ label [ class "label" ] [ text "Indent characters" ] ]
+                    , div [ class "field-body" ]
+                        [ div [ class "field" ]
+                            [ p [ class "control" ]
+                                [ input
+                                    [ class "input"
+                                    , placeholder "  "
+                                    , type_ "text"
+                                    , onInput <| IndentString >> ConfigUpdate
+                                    ] []
+                                ]
+                            ]
+                        ]
+                    ]
+                , div [ class "field is-horizontal" ]
+                    [ div [ class "field-label is-normal" ]
+                        [ label [ class "label" ] [ text "Line length" ] ]
+                    , div [ class "field-body" ]
+                        [ div [ class "field" ]
+                            [ p [ class "control" ]
+                                [ input
+                                    [ class "input"
+                                    , placeholder "140"
+                                    , type_ "text"
+                                    , onInput <| MaxRowLength >> ConfigUpdate
+                                    ] []
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
     in
         div []
             [ nav [ class "navbar is-light" ]
@@ -124,6 +183,7 @@ view model =
                 [ div [ class "column "]
                     [ textarea [ class "textarea", placeholder "Input text", rows 14, onInput InputChange ] []
                     , parseStatusHtml
+                    , parameterForm
                     ]
                 , div [ class "column" ] [ outputBlock ]
                 ]
