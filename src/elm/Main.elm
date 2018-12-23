@@ -103,7 +103,7 @@ view : Model -> Html Msg
 view model =
     let
         outputBlock : Html msg
-        outputBlock = pre [] [ code [] [ text <| outputToString model.output ] ]
+        outputBlock = pre [ class "output-pre" ] [ code [] [ text <| outputToString model.output ] ]
 
         parseStatusHtml : Html msg
         parseStatusHtml =
@@ -180,12 +180,12 @@ view model =
                     ]
                 ]
             , div [ class "columns main-container" ]
-                [ div [ class "column "]
+                [ div [ class "column is-half"]
                     [ textarea [ class "textarea", placeholder "Input text", rows 14, onInput InputChange ] []
                     , parseStatusHtml
                     , parameterForm
                     ]
-                , div [ class "column" ] [ outputBlock ]
+                , div [ class "column is-half" ] [ outputBlock ]
                 ]
             ]
 
