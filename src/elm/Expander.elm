@@ -7,6 +7,7 @@ import Parser exposing
     , DeadEnd
     )
 import CommonModel exposing (..)
+import Format exposing (..)
 
 
 type alias Symbol = String
@@ -85,11 +86,6 @@ flattenExpression expr =
         Value symbol -> symbol
 
 
-indentMultiline : String -> String -> String
-indentMultiline indent string =
-    indent ++ (String.replace "\n" ("\n" ++ indent) string)
-
-
 expandExpression : ExpanderConfig -> Expression -> String
 expandExpression config expr =
     case expr of
@@ -110,5 +106,9 @@ expandExpression config expr =
         Value symbol -> symbol
 
 
-computeOutput : ExpanderConfig -> String -> Result (List DeadEnd) String
-computeOutput config input = parseInput input |> Result.map (expandExpression config)
+computeOutput : ExpanderConfig -> String -> ParserOutput
+computeOutput config input =
+    if input == "" then
+        Ok ""
+    else
+        parseInput input |> Result.map (expandExpression config)

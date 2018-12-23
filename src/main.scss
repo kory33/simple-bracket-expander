@@ -10,3 +10,24 @@ $main-padding: 20px;
 .main-container {
     padding: 30px 10px;
 }
+
+.output-status-box {
+    margin: 10px 0px;
+}
+
+.output-status-box > .level > * {
+    background-color : inherit;
+    color : #4a4a4a;
+}
+
+.status-box-success {
+    background-color: hsl(140, 100%, 84%);
+}
+
+.status-box-error {
+    background-color: hsl(0, 98%, 84%);
+}
+
+.status-box-empty {
+    background-color: hsl(0, 0%, 88%);
+}
