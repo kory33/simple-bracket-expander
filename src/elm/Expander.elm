@@ -4,6 +4,7 @@ import Parser exposing
     ( Parser, Trailing(..), (|.), (|=), run, succeed, problem
     , symbol, oneOf, end, sequence, backtrackable
     , chompWhile, getChompedString, lazy
+    , DeadEnd
     )
 import CommonModel exposing (..)
 
@@ -72,10 +73,8 @@ expressionParser =
                 ]
 
 
-parseInput : String -> Result String Expression
-parseInput input =
-    run (expressionParser |. end) input
-        |> Result.mapError Parser.deadEndsToString
+parseInput : String -> Result (List DeadEnd) Expression
+parseInput input = run (expressionParser |. end) input
 
 
 flattenExpression : Expression -> String
@@ -111,5 +110,5 @@ expandExpression config expr =
         Value symbol -> symbol
 
 
-computeOutput : ExpanderConfig -> String -> Result String String
+computeOutput : ExpanderConfig -> String -> Result (List DeadEnd) String
 computeOutput config input = parseInput input |> Result.map (expandExpression config)

@@ -8,6 +8,7 @@ import Task
 import Process
 import Expander exposing (computeOutput)
 import CommonModel exposing (..)
+import Parser exposing (DeadEnd)
 
 
 ---- MODEL ----
@@ -15,7 +16,7 @@ import CommonModel exposing (..)
 
 type alias Model =
     { input : String
-    , output : Result String String
+    , output : Result (List DeadEnd) String
     , pendingUpdateCount : Int
     , config : ExpanderConfig
     }
@@ -64,10 +65,10 @@ update msg model =
 ---- VIEW ----
 
 
-outputToString : Result String String -> String
+outputToString : Result (List DeadEnd) String -> String
 outputToString output =
     let
-        flattenedOutput = Result.andThen (\string -> if string == "" then Err "" else Ok string) output
+        flattenedOutput = output |> Result.andThen (\string -> if string == "" then Err [] else Ok string)
     in
         case flattenedOutput of
             Ok s -> s
